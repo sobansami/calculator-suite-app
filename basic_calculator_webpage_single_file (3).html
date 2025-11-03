@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculator Suite — Clean & Responsive</title>
+  <meta name="description" content="A responsive collection of calculators — scientific, basic, unit converter and more. Inspired by calculator-1.com."/>
+  <style>
+    :root{
+      --bg:#f6f8fb; --card:#ffffff; --muted:#6b7280; --accent:#0ea5e9; --glass: rgba(14,21,39,0.04);
+      --shadow: 0 6px 20px rgba(2,6,23,0.08); --radius:12px; --maxwidth:1100px;
+      --mono: 'Segoe UI Mono', SFMono-Regular, Menlo, Monaco, monospace;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial; background:var(--bg); color:#0f1724;}
+    header{background:linear-gradient(90deg,#ffffff, #f8fbfe); border-bottom:1px solid #eef2f7}
+    .wrap{max-width:var(--maxwidth); margin:0 auto; padding:18px}
+    .topbar{display:flex; align-items:center; gap:16px}
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{width:44px; height:44px; background:linear-gradient(135deg,var(--accent),#7c3aed); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700}
+    .title{font-size:18px; font-weight:700}
+    .subtitle{font-size:13px; color:var(--muted)}
+
+    main{max-width:var(--maxwidth); margin:18px auto; padding:18px}
+    .grid{display:grid; grid-template-columns: 260px 1fr; gap:18px}
+
+    /* Sidebar */
+    .sidebar{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:12px}
+    .search{display:flex; gap:8px; align-items:center}
+    .search input{flex:1; padding:10px 12px; border-radius:10px; border:1px solid #e6eef6; outline:none}
+    .list{margin-top:12px}
+    .list h4{margin:6px 0; font-size:13px}
+    .item{padding:10px; border-radius:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px}
+    .item:hover{background:#f1f5f9}
+    .item.active{background:linear-gradient(90deg,#e6f6ff,#eef9ff); border-left:4px solid var(--accent);}
+    .tag{font-size:12px; color:var(--muted)}
+
+    /* Content */
+    .content{min-height:520px}
+    .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px}
+    .calculator{display:grid; grid-template-columns: 1fr 320px; gap:16px}
+    .calc-left{display:flex; flex-direction:column; gap:12px}
+    .display{background:var(--glass); border-radius:10px; padding:12px; min-height:100px; display:flex; flex-direction:column; justify-content:center}
+    .expr{color:var(--muted); font-size:14px; min-height:20px; word-break:break-all}
+    .res{font-size:32px; font-weight:700}
+
+    .keys{display:grid; grid-template-columns: repeat(6,1fr); gap:8px}
+    button.key{padding:12px; border-radius:8px; border:0; background:#f8fafc; font-size:15px; cursor:pointer}
+    button.key.operator{background:#eef2ff}
+    button.key.equal{background:linear-gradient(90deg,#06b6d4,#0891b2); color:white; grid-column:span 2}
+    button.key.clear{background:#fee2e2}
+
+    /* Right column */
+    .rightcol{display:flex; flex-direction:column; gap:12px}
+    .history{max-height:300px; overflow:auto}
+    .history .hitem{padding:10px; border-radius:8px; background:#fbfdff; margin-bottom:8px}
+
+    /* small screens */
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr}
+      .calculator{grid-template-columns:1fr}
+      .rightcol{order:2}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topbar">
+      <div class="brand">
+        <div class="logo">C</div>
+        <div>
+          <div class="title">Calculator Suite</div>
+          <div class="subtitle">Quick, clean calculators — basic, scientific, converters</div>
+        </div>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:10px; align-items:center">
+        <a href="#" style="font-size:14px; color:var(--muted); text-decoration:none">About</a>
+        <a href="#" style="font-size:14px; color:var(--muted); text-decoration:none">Share</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <aside class="sidebar card" aria-label="Sidebar">
+        <div class="search">
+          <input id="sideSearch" placeholder="Search calculators..." />
+        </div>
+        <div class="list" id="calcList">
+          <h4>Common</h4>
+          <div class="item active" data-id="scientific">Scientific <span class="tag">sin, cos, log</span></div>
+          <div class="item" data-id="basic">Basic <span class="tag">+ − × ÷</span></div>
+          <div class="item" data-id="percent">Percentage <span class="tag">% calculations</span></div>
+
+          <h4 style="margin-top:12px">Converters</h4>
+          <div class="item" data-id="unit">Unit Converter <span class="tag">length, weight</span></div>
+          <div class="item" data-id="currency">Currency <span class="tag">live rates</span></div>
+
+          <h4 style="margin-top:12px">Utilities</h4>
+          <div class="item" data-id="history">History <span class="tag">saved</span></div>
+          <div class="item" data-id="settings">Settings <span class="tag">theme, angle</span></div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+            <div>
+              <strong id="pageTitle">Scientific Calculator</strong>
+              <div class="tag" id="pageDesc">Trigonometry, logs, powers, parentheses</div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center">
+              <label style="font-size:13px; color:var(--muted)">Mode</label>
+              <select id="angleMode" style="padding:8px; border-radius:8px">
+                <option value="deg">Degrees</option>
+                <option value="rad">Radians</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="calculator">
+            <div class="calc-left">
+              <div class="display">
+                <div class="expr" id="expr">0</div>
+                <div class="res" id="res">0</div>
+              </div>
+
+              <div class="keys" id="keys">
+                <!-- scientific keypad generated by JS -->
+              </div>
+            </div>
+
+            <aside class="rightcol">
+              <div class="card history">
+                <strong>History</strong>
+                <div id="historyList" style="margin-top:10px"></div>
+                <div style="display:flex; gap:8px; margin-top:8px">
+                  <button id="clearHistory" class="key">Clear</button>
+                  <button id="exportHistory" class="key">Export</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <strong>Quick help</strong>
+                <p style="margin:8px 0 0; color:var(--muted); font-size:14px">Use parentheses, functions like <code>sin(30)</code>, <code>log(100)</code>. Toggle Degrees/Radians above.</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // --- app state ---
+    const calculators = {
+      scientific: {title:'Scientific Calculator', desc:'Trigonometry, logs, powers, parentheses'},
+      basic: {title:'Basic Calculator', desc:'Simple arithmetic'},
+      percent: {title:'Percentage Calculator', desc:'Percent change, part of total'},
+      unit: {title:'Unit Converter', desc:'Length, weight, volume'},
+      currency: {title:'Currency Converter', desc:'Live rates (requires API)'}
+    };
+
+    const keyLayout = [
+      ['(', ')', '%', 'sqrt', 'x^2', '/'],
+      ['7','8','9','sin','cos','*'],
+      ['4','5','6','tan','log','-'],
+      ['1','2','3','ln','pi','+'],
+      ['±','0','.','exp','10^x','=']
+    ];
+
+    // DOM refs
+    const keysRoot = document.getElementById('keys');
+    const exprEl = document.getElementById('expr');
+    const resEl = document.getElementById('res');
+    const historyList = document.getElementById('historyList');
+    const angleMode = document.getElementById('angleMode');
+
+    // state
+    let expression = '';
+    let history = JSON.parse(localStorage.getItem('calc_history')||'[]');
+
+    function createKey(label){
+      const btn = document.createElement('button');
+      btn.className = 'key';
+      btn.textContent = label;
+      // classes for style
+      if(['/','*','-','+','=','%'].includes(label)) btn.classList.add('operator');
+      if(label==='=') btn.classList.add('equal');
+      if(label==='C') btn.classList.add('clear');
+      btn.addEventListener('click', ()=>handleKey(label));
+      return btn;
+    }
+
+    function renderKeys(){
+      keysRoot.innerHTML = '';
+      keyLayout.forEach(row=> row.forEach(k=> keysRoot.appendChild(createKey(k))));
+    }
+
+    function toRadiansIfNeeded(v){
+      return angleMode.value === 'deg' ? v * Math.PI / 180 : v;
+    }
+
+    function safeEval(expr){
+      // transform user-friendly tokens to Math.* calls
+      try{
+        let s = expr.replace(/π/g, 'Math.PI')
+                    .replace(/sqrt\(/g,'Math.sqrt(')
+                    .replace(/x\^2/g,'.**2')
+                    .replace(/10\^/g,'Math.pow(10,')
+                    .replace(/\^/g,'**');
+
+        // functions that need angle conversion
+        s = s.replace(/sin\(/g, 'Math.sin(angle(')
+             .replace(/cos\(/g, 'Math.cos(angle(')
+             .replace(/tan\(/g, 'Math.tan(angle(');
+
+        // wrapper to convert degrees->radians when angleMode=deg
+        const angle = (v)=> angleMode.value==='deg' ? (v*Math.PI/180) : v;
+        const MathSafe = Math; // allow access inside Function
+        // close any open angle( calls by inserting ) when needed: replace 'angle(' occurrences count
+        // Note: This is a minimal approach — encourages use of parentheses correctly
+
+        const fn = new Function('angle','Math','return ' + s + ';');
+        const val = fn(angle, MathSafe);
+        if(!isFinite(val)) throw new Error('Bad');
+        return val;
+      }catch(e){ return null; }
+    }
+
+    function handleKey(k){
+      if(k === 'C'){ expression=''; update(); return; }
+      if(k === '='){ const val = safeEval(expression); if(val===null){ resEl.textContent='Error'; } else { resEl.textContent = String(val); pushHistory(expression, val); } return; }
+      if(k === 'pi'){ expression += 'π'; update(); return; }
+      if(k === 'sqrt'){ expression += 'sqrt('; update(); return; }
+      if(k === 'x^2'){ expression += '**2'; update(); return; }
+      if(k === '10^x'){ expression += '10^'; update(); return; }
+      if(k === 'exp'){ expression += 'exp('; update(); return; }
+      if(['sin','cos','tan','log','ln'].includes(k)){ expression += k + '('; update(); return; }
+      if(k === '±'){ expression = expression.startsWith('-') ? expression.slice(1) : '-' + expression; update(); return; }
+      // numbers, operators and parentheses
+      expression += k;
+      update();
+    }
+
+    function update(){
+      exprEl.textContent = expression || '0';
+      // try live-eval
+      const val = safeEval(expression);
+      resEl.textContent = val === null ? '—' : String(val);
+    }
+
+    function pushHistory(exp, res){
+      history.unshift({exp, res, t: new Date().toISOString()});
+      history = history.slice(0,200);
+      localStorage.setItem('calc_history', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory(){
+      historyList.innerHTML = '';
+      if(history.length===0){ historyList.innerHTML = '<div style="color:var(--muted)">No history</div>'; return; }
+      history.forEach(h=>{
+        const d = document.createElement('div'); d.className='hitem'; d.innerHTML = `<div style="font-size:13px;color:var(--muted)">${h.t.split('T')[0]}</div><div style="font-weight:600">${h.exp} = ${h.res}</div>`;
+        d.addEventListener('click', ()=>{ expression = h.exp; update(); });
+        historyList.appendChild(d);
+      });
+    }
+
+    // sidebar navigation
+    document.querySelectorAll('.item').forEach(it=>{
+      it.addEventListener('click', ()=>{
+        document.querySelectorAll('.item').forEach(i=>i.classList.remove('active'));
+        it.classList.add('active');
+        const id = it.dataset.id;
+        document.getElementById('pageTitle').textContent = calculators[id]?.title || 'Calculator';
+        document.getElementById('pageDesc').textContent = calculators[id]?.desc || '';
+        // simple content switch: scientific vs basic
+        if(id === 'basic') loadBasicLayout(); else loadScientificLayout();
+      });
+    });
+
+    function loadScientificLayout(){
+      // use existing layout
+      keyLayout[0] = ['(', ')', '%', 'sqrt', 'x^2', '/'];
+      renderKeys();
+    }
+    function loadBasicLayout(){
+      keyLayout[0] = ['C','⌫','%','', '', '/'];
+      keyLayout[1] = ['7','8','9','','','*'];
+      keyLayout[2] = ['4','5','6','','','-'];
+      keyLayout[3] = ['1','2','3','','','+'];
+      keyLayout[4] = ['±','0','.','','','='];
+      renderKeys();
+    }
+
+    // search filtering
+    document.getElementById('sideSearch').addEventListener('input', (e)=>{
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('#calcList .item').forEach(it=>{
+        it.style.display = (it.textContent.toLowerCase().includes(q)) ? '' : 'none';
+      });
+    });
+
+    // history controls
+    document.getElementById('clearHistory').addEventListener('click', ()=>{ history=[]; localStorage.removeItem('calc_history'); renderHistory(); });
+    document.getElementById('exportHistory').addEventListener('click', ()=>{ const blob = new Blob([JSON.stringify(history, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='history.json'; a.click(); URL.revokeObjectURL(url); });
+
+    // init
+    renderKeys(); renderHistory(); update();
+
+    // keyboard support (basic)
+    window.addEventListener('keydown', (e)=>{
+      if((e.key>='0' && e.key<='9') || ['+','-','*','/','(',')','.'].includes(e.key)){
+        expression += e.key; update();
+      } else if(e.key === 'Enter') { const val = safeEval(expression); if(val!==null) pushHistory(expression, val); }
+      else if(e.key === 'Backspace'){ expression = expression.slice(0,-1); update(); }
+    });
+  </script>
+</body>
+</html>
